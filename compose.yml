@@ -1,0 +1,28 @@
+services:
+  api-rest:
+    build: 
+      context: .
+      dockerfile: Dockerfile.prod
+    image: api_rest_image
+    container_name: api_rest_container
+    ports:
+      - "80:80"
+    environment:
+      - PORT=80
+      - PSWD_DECRYPT_CODE="likoson"
+      - JWT_SECRET="GuGMlmYhje7HnFae3hgkxWsxK/AjK8XsbDVA8Kgga7s="
+
+  dev-env:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+    image: dev_env_image
+    container_name: dev_env_container
+    ports:
+      - "81:81"
+    environment:
+      - PORT=81
+      - PSWD_DECRYPT_CODE="likoson"
+      - JWT_SECRET="GuGMlmYhje7HnFae3hgkxWsxK/AjK8XsbDVA8Kgga7s=" 
+    volumes:
+      - ./src:/usr/src/app/src
