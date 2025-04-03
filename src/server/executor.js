@@ -1,14 +1,14 @@
 import { scheduleJob } from "node-schedule";
-import { fetchExchangeRates } from "../controller/requests/exchangeRatesReq.js";
-import { connectToDatabase } from "../database/connection.js";
+import { fetchExchangeRates } from "../infrastructure/services/exchangeRatesReq.js";
+import { connectToDatabase } from "../infrastructure/database/connection.js";
 import serverApp from "./settings.js";
 
 /**
  * Method to start the server.
  */
 export const startServer = async () => {
-  const port = process.env.PORT || 3000; // Usar el puerto de la variable de entorno, o 3000 por defecto
-  const jwtSecret = process.env.JWT_SECRET; // Obtener la clave secreta de JWT desde las variables de entorno
+  const port = process.env.PORT || 3000; 
+  const jwtSecret = process.env.JWT_SECRET; 
 
   if (!jwtSecret) {
     console.error("JWT_SECRET is not defined!");

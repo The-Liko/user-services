@@ -1,7 +1,6 @@
 import User from '../../models/User.js';
 import CryptoJS from 'crypto-js'
 import crypto from 'crypto';
-import UserToRegister from '../../models/UserToRegister.js';
 import jwt from 'jsonwebtoken';
 
 /**
@@ -96,43 +95,6 @@ const passwordPattern = /^(?=.*[a-zñ])(?=.*[A-ZÑ])(?=.*\d)(?=.*[+,\.\-_'"!¿?]
  */
 const namePattern = /^(?! {0,2}$)[A-Za-zñÑ\s]{3,80}$/;
 
-
-
-/**
- * Validates if the provided email follows the specified pattern.
- * @param {string} email - The email to be validated.
- * @returns {boolean} - True if the email is valid, false otherwise.
- */
-const isValidEmail = (email) => {
-  return emailPattern.test(email.trim());
-}
-
-/**
- * Validates if the provided password follows the specified pattern.
- * @param {string} password - The password to be validated.
- * @returns {boolean} - True if the password is valid, false otherwise.
- */
-const isValidPassword = (password) => {
-  return passwordPattern.test(password.trim());
-}
-
-/**
- * Validates if the provided name follows the specified pattern.
- * @param {string} name - The name to be validated.
- * @returns {boolean} - True if the name is valid, false otherwise.
- */
-const isValidUserName = (name) => {
-  let isValidName = true;
-  isValidName = namePattern.test(name);
-  const userNameArray = name.split(" ");
-
-  userNameArray.map((word) => {
-    isValidName = namePattern.test(word);
-  });
-
-  return isValidName;
-}
-
 /**
  * Handles user signup.
  * @param {object} req - The request object.
@@ -186,60 +148,6 @@ const generateVerificationCode = () => {
 };
 
 /**
- * Uploads a user to the database to register
- * @param {string} username - The username to be validated.
- * @param {string} email - The email to be validated.
- * @param {string} password - The password to be validated.
- * @returns {string} - The token to be validated.
- */
-const uploadUserToRegister = async (username, email, password) => {
-    
-    const verificationCode = generateVerificationCode();
-    try{
-      const expirationDate = new Date();
-      expirationDate.setMinutes(expirationDate.getMinutes() + 10);
-      const token = generateToken({username, email}, process.env.PSWD_DECRYPT_CODE);
-      await deletePreviusRegister(token);
-      const userToRegister = new UserToRegister({
-        codeVerification: verificationCode,
-        username: username,
-        email: email,
-        password : password,
-        token: token,
-        expirationDate: expirationDate,
-      });
-      const result = await userToRegister.save();
-      if(result._id){
-/*         sendVerificationEmail(email, verificationCode);
- */        return token;
-      }
-    }catch (error) {
-      throw new Error(error);
-    }
-}
-
-/**
- * Deletes the previous register with the same token
- * @param {string} token - The token to be validated.
- * @returns {boolean} - True if the token is valid, false otherwise.
- */
-const deletePreviusRegister = async (token) => {
-  try {
-    const result = await UserToRegister.findOneAndDelete({ token: token });
-
-    if (!result) {
-      return false; 
-    }
-    return true; 
-  } catch (error) {
-    console.error('Error deleting previous record:', error.message);
-    throw new Error('There was an error deleting the previous record');
-  }
-};
-
-
-
-/**
  * Generates a token with the provided payload and secret.
  * @param {Object} payload - The payload to be used for generating the token.
  * @param {string} secret - The secret to be used for generating the token.
@@ -249,31 +157,6 @@ const generateToken = (payload, secret) => {
   return jwt.sign(payload, secret);
 };
 
-/**
- * Handles user signup by validating email, checking for existing users, and performing necessary checks.
- * @param {Object} req - The request object.
- * @param {Object} res - The response object.
- * @throws {Object} - Returns a JSON object with an 'error' property if any validation or registration error occurs.
- */
-export const confirmRegister = async (req, res) => {
-  const { token, codeVerification } = req.body;
-  try {
-    const userToRegister = await UserToRegister.findOne({ token: token }).exec();
-    if (userToRegister) {
-      if (userToRegister.codeVerification === codeVerification) {
-        const user = await registerUser(userToRegister.username, userToRegister.email, userToRegister.password);
-        res.status(201).json({ userId: user._id });
-      } else {
-        res.status(200).json({ message: "Invalid verification code" });
-      }
-    } else {
-      res.status(200).json({ message: "Invalid token" });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ error: "Bad request" });
-  }
-}
 
 /**
  * Registers a new user with the provided username, email, and password.

@@ -1,6 +1,4 @@
 import CartItem from "../../models/CartItem.js";
-import Product from "../../models/Product.js";
-import { convertToCurrency } from "../methods/changeCurrency.js";
 
 /**
  * Get all cart items for a specified user, including full product information.

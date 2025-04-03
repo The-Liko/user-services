@@ -12,11 +12,11 @@ export const connectToDatabase = async () => {
 		const db = await connect(MONGO_URI, {
 			useNewUrlParser: true,
 			useUnifiedTopology: true,
-			serverSelectionTimeoutMS: 10000, // ⏳ Espera hasta 10s antes de fallar
+			serverSelectionTimeoutMS: 10000, 
 		});
 		console.log('✅ Database connected:', db.connection.host);
 	} catch (error) {
 		console.error('❌ Connection failed:', error.message);
-		process.exit(1); // Salir del proceso si la conexión falla
+		process.exit(1); 
 	}
 };
